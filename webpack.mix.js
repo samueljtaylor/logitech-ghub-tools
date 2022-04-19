@@ -1,4 +1,5 @@
 const mix = require('laravel-mix');
+require('laravel-mix-tailwind');
 
 /*
  |--------------------------------------------------------------------------
@@ -18,8 +19,9 @@ mix.js('resources/js/app.js', 'public/js').vue()
     ])
     .alias({
         '@': 'resources/js',
-    });
+    })
+    .tailwind();
 
-if (mix.inProduction()) {
+// if (mix.inProduction()) {
     mix.version();
-}
+// }
