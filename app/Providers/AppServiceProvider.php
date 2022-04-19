@@ -3,7 +3,9 @@
 namespace App\Providers;
 
 use App\Contracts\AppDatabaseContract;
+use App\Contracts\JsonFileRepositoryContract;
 use App\Repositories\AppDatabase;
+use App\Repositories\JsonFileRepository;
 use App\Services\PlatformResolver;
 use Illuminate\Support\Collection;
 use Illuminate\Support\ServiceProvider;
@@ -29,6 +31,10 @@ class AppServiceProvider extends ServiceProvider
 
         $this->app->bind(AppDatabaseContract::class, function () {
             return new AppDatabase(PlatformResolver::resolvePathBuilder());
+        });
+
+        $this->app->bind(JsonFileRepositoryContract::class, function () {
+            return new JsonFileRepository();
         });
     }
 
