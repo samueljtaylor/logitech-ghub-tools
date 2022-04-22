@@ -12,12 +12,14 @@ class CardController extends Controller
     public function index(): Response
     {
         return Inertia::render('Models/Card/CardIndex', [
-            'cards' => Card::all()
+            'cards' => Card::all(),
         ]);
     }
 
     public function show(Card $card): Response
     {
-        dd($card);
+        return Inertia::render('Models/Card/CardShow', [
+            'card' => $card,
+        ]);
     }
 }

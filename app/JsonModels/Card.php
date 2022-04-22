@@ -8,14 +8,6 @@ class Card extends JsonModel
 {
     protected $guarded = [];
 
-    public function macro(): Attribute
-    {
-        return Attribute::make(
-            get: fn ($macro) => json_encode($macro, JSON_PRETTY_PRINT),
-            set: fn ($macro) => json_decode($macro, true)
-        );
-    }
-
     public function readOnly(): Attribute
     {
         return Attribute::make(
