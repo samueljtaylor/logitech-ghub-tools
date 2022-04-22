@@ -2,7 +2,7 @@
 
 namespace App\PathBuilders;
 
-use App\Contracts\PathBuilderContract;
+use App\Contracts\PathBuilders\PathBuilder as PathBuilderContract;
 use App\Services\PlatformResolver;
 use App\Traits\HasNullableConfig;
 use Illuminate\Support\Str;
@@ -54,7 +54,7 @@ abstract class PathBuilder implements PathBuilderContract
     /**
      * @inheritDoc
      */
-    public static function instance(): PathBuilderContract
+    public static function instance(): PathBuilder
     {
         return PlatformResolver::resolve();
     }

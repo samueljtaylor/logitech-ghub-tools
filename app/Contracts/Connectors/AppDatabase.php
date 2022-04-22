@@ -1,25 +1,26 @@
 <?php
 
-namespace App\Contracts;
+namespace App\Contracts\Connectors;
 
+use App\Contracts\PathBuilders\PathBuilder;
 use PDO;
 use PDOStatement;
 
-interface AppDatabaseContract
+interface AppDatabase
 {
     /**
      * Constructor.
      *
-     * @param PathBuilderContract $pathBuilder
+     * @param PathBuilder $pathBuilder
      */
-    public function __construct(PathBuilderContract $pathBuilder);
+    public function __construct(PathBuilder $pathBuilder);
 
     /**
      * Get the PathBuilder.
      *
-     * @return PathBuilderContract
+     * @return PathBuilder
      */
-    public function path(): PathBuilderContract;
+    public function path(): PathBuilder;
 
     /**
      * The select query.

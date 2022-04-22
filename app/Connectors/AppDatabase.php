@@ -1,9 +1,9 @@
 <?php
 
-namespace App\Repositories;
+namespace App\Connectors;
 
-use App\Contracts\AppDatabaseContract;
-use App\Contracts\PathBuilderContract;
+use App\Contracts\Connectors\AppDatabase as AppDatabaseContract;
+use App\Contracts\PathBuilders\PathBuilder;
 use App\Traits\HasNullableConfig;
 use PDO;
 use PDOStatement;
@@ -13,14 +13,14 @@ class AppDatabase implements AppDatabaseContract
     use HasNullableConfig;
 
     /**
-     * @var PathBuilderContract
+     * @var PathBuilder
      */
-    protected PathBuilderContract $pathBuilder;
+    protected PathBuilder $pathBuilder;
 
     /**
      * @inheritDoc
      */
-    public function __construct(PathBuilderContract $pathBuilder)
+    public function __construct(PathBuilder $pathBuilder)
     {
         $this->pathBuilder = $pathBuilder;
     }
@@ -28,7 +28,7 @@ class AppDatabase implements AppDatabaseContract
     /**
      * @inheritDoc
      */
-    public function path(): PathBuilderContract
+    public function path(): PathBuilder
     {
         return $this->pathBuilder;
     }

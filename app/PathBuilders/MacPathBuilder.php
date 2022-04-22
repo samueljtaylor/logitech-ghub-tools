@@ -35,7 +35,7 @@ class MacPathBuilder extends PathBuilder
      */
     public function platform(): string
     {
-        return 'macos';
+        return 'OS X';
     }
 
 }

@@ -6,7 +6,7 @@ return [
 
     'settings_path' => null,
 
-    'platform' => null,
+    'platform' => env('PLATFORM'),
 
     'application_path' => null,
 

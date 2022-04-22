@@ -2,12 +2,10 @@
 
 namespace App\Providers;
 
-use App\Contracts\AppDatabaseContract;
-use App\Contracts\JsonFileRepositoryContract;
-use App\Repositories\AppDatabase;
-use App\Repositories\JsonFileRepository;
+use App\Connectors\AppDatabase;
+use App\Contracts\Repositories\FileRepository as FileRepositoryContract;
+use App\Repositories\FileRepository;
 use App\Services\PlatformResolver;
-use Illuminate\Support\Collection;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -19,22 +17,8 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        Collection::macro('recursive', function () {
-            return $this->map(function ($val) {
-                if (is_array($val)) {
-                    return (new Collection($val))->recursive();
-                }
-
-                return $val;
-            });
-        });
-
-        $this->app->bind(AppDatabaseContract::class, function () {
+        $this->app->bind(AppDatabase::class, function () {
             return new AppDatabase(PlatformResolver::resolvePathBuilder());
-        });
-
-        $this->app->bind(JsonFileRepositoryContract::class, function () {
-            return new JsonFileRepository();
         });
     }
 

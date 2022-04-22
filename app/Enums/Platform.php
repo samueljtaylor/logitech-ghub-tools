@@ -2,7 +2,7 @@
 
 namespace App\Enums;
 
-use App\Contracts\PathBuilderContract;
+use App\Contracts\PathBuilders\PathBuilder;
 use App\PathBuilders\MacPathBuilder;
 use App\PathBuilders\OtherPathBuilder;
 use Exception;
@@ -35,21 +35,21 @@ enum Platform
      *
      * @throws Exception
      */
-    public function builder(): PathBuilderContract
+    public function builder(): PathBuilder
     {
         $class = $this->builderClass();
         return new $class();
     }
 
     /**
-     * New platform from Agent instance.
+     * New platform from string.
      *
-     * @param Agent $agent
+     * @param string $platform
      * @return Platform
      */
-    public static function fromAgent(Agent $agent): Platform
+    public static function resolve(string $platform): Platform
     {
-        return match($agent->platform()) {
+        return match($platform) {
             'OS X' => Platform::MacOS,
             'Windows' => Platform::Windows,
             'Linux' => Platform::Linux,

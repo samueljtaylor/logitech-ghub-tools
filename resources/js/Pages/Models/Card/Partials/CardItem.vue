@@ -17,7 +17,7 @@ const open = ref(false);
             <div class="p-6">
                 <pre>{{ card }}</pre>
             </div>
-            <a class="p-3 text-white text-center bg-blue-500 hover:bg-blue-400" :href="route('card.show', card.id)">
+            <a class="p-3 text-white text-center bg-blue-500 hover:bg-blue-400" :href="route('card.show', card)">
                 Edit
             </a>
         </div>

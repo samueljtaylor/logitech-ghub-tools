@@ -1,10 +1,11 @@
 <?php
 
-namespace App\Contracts;
+namespace App\Contracts\Resolvers;
 
+use App\Contracts\PathBuilders\PathBuilder;
 use App\Enums\Platform;
 
-interface PlatformResolverContract
+interface PlatformResolver
 {
     /**
      * Get the Platform enum.
@@ -16,14 +17,14 @@ interface PlatformResolverContract
     /**
      * Get the PathBuilder.
      *
-     * @return PathBuilderContract
+     * @return PathBuilder
      */
-    public function pathBuilder(): PathBuilderContract;
+    public function pathBuilder(): PathBuilder;
 
     /**
      * Resolve the correct PathBuilder based on platform.
      *
-     * @return PathBuilderContract
+     * @return PathBuilder
      */
-    public static function resolvePathBuilder(): PathBuilderContract;
+    public static function resolvePathBuilder(): PathBuilder;
 }

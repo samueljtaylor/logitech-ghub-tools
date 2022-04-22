@@ -1,10 +1,11 @@
 <?php
 
-namespace App\Contracts;
+namespace App\Contracts\Repositories;
 
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Collection;
 
-interface JsonFileRepositoryContract
+interface FileRepository
 {
     /**
      * Load from the file.
@@ -16,9 +17,16 @@ interface JsonFileRepositoryContract
     /**
      * Load the data from the database.
      *
-     * @return SettingsCollectionContract
+     * @return Collection
      */
-    public function loadFromDatabase(): SettingsCollectionContract;
+    public function loadFromDatabase(): Collection;
+
+    /**
+     * Get the settings database repository.
+     *
+     * @return DatabaseRepository
+     */
+    public function database(): DatabaseRepository;
 
     /**
      * Save the current data to the file.
@@ -72,9 +80,16 @@ interface JsonFileRepositoryContract
     /**
      * Get the data.
      *
-     * @return SettingsCollectionContract
+     * @return Collection
      */
-    public function settings(): SettingsCollectionContract;
+    public function collection(): Collection;
+
+    /**
+     * Get all the data.
+     *
+     * @return Collection
+     */
+    public function all(): Collection;
 
     /**
      * New instance of self.

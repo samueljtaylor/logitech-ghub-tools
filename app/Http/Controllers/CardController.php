@@ -15,4 +15,9 @@ class CardController extends Controller
             'cards' => Card::all()
         ]);
     }
+
+    public function show(Card $card): Response
+    {
+        dd($card);
+    }
 }

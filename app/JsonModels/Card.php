@@ -6,19 +6,7 @@ use Illuminate\Database\Eloquent\Casts\Attribute;
 
 class Card extends JsonModel
 {
-    /**
-     * @inheritDoc
-     */
-    protected array $fields = [
-        'applicationId',
-        'attribute',
-        'category',
-        'id',
-        'macro',
-        'name',
-        'profileId',
-        'readOnly',
-    ];
+    protected $guarded = [];
 
     public function macro(): Attribute
     {

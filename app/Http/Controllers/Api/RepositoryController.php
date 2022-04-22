@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Contracts\JsonFileRepositoryContract;
+use App\Repositories\FileRepository;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -10,9 +10,9 @@ use Illuminate\Http\Request;
 
 class RepositoryController extends Controller
 {
-    protected JsonFileRepositoryContract $repository;
+    protected FileRepository $repository;
 
-    public function __construct(JsonFileRepositoryContract $repository)
+    public function __construct(FileRepository $repository)
     {
         $this->repository = $repository;
     }

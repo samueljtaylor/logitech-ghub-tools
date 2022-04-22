@@ -2,8 +2,8 @@
 
 namespace App\Services;
 
-use App\Contracts\PathBuilderContract;
-use App\Contracts\PlatformResolverContract;
+use App\Contracts\PathBuilders\PathBuilder;
+use App\Contracts\Resolvers\PlatformResolver as PlatformResolverContract;
 use App\Enums\Platform;
 use Exception;
 use Jenssegers\Agent\Agent;
@@ -16,9 +16,9 @@ class PlatformResolver implements PlatformResolverContract
     protected Agent $agent;
 
     /**
-     * @var PathBuilderContract
+     * @var PathBuilder
      */
-    protected PathBuilderContract $pathBuilder;
+    protected PathBuilder $pathBuilder;
 
     /**
      * @var Platform
@@ -38,7 +38,7 @@ class PlatformResolver implements PlatformResolverContract
      */
     public function platform(): Platform
     {
-        $this->platform ??= Platform::fromAgent($this->agent);
+        $this->platform ??= Platform::resolve($this->agent->platform() ?: config('ghub.platform'));
         return $this->platform;
     }
 
@@ -46,7 +46,7 @@ class PlatformResolver implements PlatformResolverContract
      * @inheritDoc
      * @throws Exception
      */
-    public function pathBuilder(): PathBuilderContract
+    public function pathBuilder(): PathBuilder
     {
         $this->pathBuilder ??= $this->platform()->builder();
         return $this->pathBuilder;
@@ -56,7 +56,7 @@ class PlatformResolver implements PlatformResolverContract
      * @inheritDoc
      * @throws Exception
      */
-    public static function resolvePathBuilder(): PathBuilderContract
+    public static function resolvePathBuilder(): PathBuilder
     {
         return (new static)->pathBuilder();
     }

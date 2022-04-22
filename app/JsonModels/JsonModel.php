@@ -2,227 +2,145 @@
 
 namespace App\JsonModels;
 
-use App\Contracts\JsonFileRepositoryContract;
-use App\Contracts\JsonModelContract;
-use ErrorException;
+use App\Contracts\JsonModels\JsonModel as JsonModelContract;
+use App\Repositories\FileRepository;
+use Illuminate\Contracts\Routing\UrlRoutable;
+use Illuminate\Contracts\Support\Arrayable;
+use Illuminate\Contracts\Support\CanBeEscapedWhenCastToString;
+use Illuminate\Contracts\Support\Jsonable;
+use ArrayAccess;
+use Illuminate\Database\Eloquent\Concerns\GuardsAttributes;
+use Illuminate\Database\Eloquent\Concerns\HasAttributes;
+use Illuminate\Database\Eloquent\Concerns\HasEvents;
+use Illuminate\Database\Eloquent\Concerns\HasGlobalScopes;
+use Illuminate\Database\Eloquent\Concerns\HasRelationships;
+use Illuminate\Database\Eloquent\Concerns\HasTimestamps;
+use Illuminate\Database\Eloquent\Concerns\HidesAttributes;
+use Illuminate\Database\Eloquent\JsonEncodingException;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
-use App\Repositories\JsonFileRepository;
+use Illuminate\Support\Traits\ForwardsCalls;
+use JsonSerializable;
 
-abstract class JsonModel implements JsonModelContract
+abstract class JsonModel implements JsonModelContract, Arrayable, ArrayAccess, CanBeEscapedWhenCastToString, Jsonable, JsonSerializable, UrlRoutable
 {
-    /**
-     * The model's key on the stored data.
-     *
-     * @var string
-     */
-    protected string $modelKey;
+    use HasAttributes;
+    use HasEvents;
+    use HasGlobalScopes;
+    use HasRelationships;
+    use HidesAttributes;
+    use GuardsAttributes;
+    use ForwardsCalls;
+    use HasTimestamps;
 
     /**
-     * Is the model data nested in itself?
-     *
-     * 'model' => [
-     *      'model' => [
-     *          ...
-     *      ]
-     * ]
-     *
+     * @var bool
+     */
+    protected bool $escapeWhenCastingToString = true;
+
+    /**
      * @var bool
      */
     protected bool $doubleNested = true;
 
     /**
-     * Fields on this model.
-     *
-     * @var array
+     * @var string
      */
-    protected array $fields = [];
+    protected string $modelKey;
 
     /**
-     * The actual attributes.
-     *
-     * @var array
+     * @var string
      */
-    protected array $attributes;
+    protected string $primaryKey;
 
-    /**
-     * Model attributes that should be read only.
-     *
-     * @var array
-     */
-    protected array $readOnlyAttributes = ['id'];
-
-    /**
-     * The repository.
-     *
-     * @var JsonFileRepository
-     */
-    protected JsonFileRepository $repository;
-
-    /**
-     * Model constructor.
-     */
-    public function __construct()
+    public function __construct($attributes = [])
     {
-        if(!isset($this->modelKey)) {
-            $this->modelKey = $this->guessModelKey();
+        $this->timestamps = false;
+
+        foreach($attributes as $key => $value) {
+            $this->setAttribute($key, $value);
         }
     }
 
     /**
-     * Guess the modelKey if not set.
+     * Get whether items are incremented.
      *
-     * @return string
+     * @return bool
      */
-    protected function guessModelKey(): string
+    public function getIncrementing(): bool
     {
-        return Str::plural(Str::camel(class_basename($this)));
+        return false;
     }
 
     /**
      * @inheritDoc
      */
-    public function fill(array $attributes): void
+    public function toArray(): array
     {
-        foreach($this->fields as $field) {
-            if(array_key_exists($field, $attributes)) {
-                $this->attributes[$field] = $attributes[$field];
-            }
-        }
-    }
-
-    /**
-     * Get the raw attribute value.
-     *
-     * @param string $field
-     * @return mixed
-     */
-    public function getRawAttribute(string $field): mixed
-    {
-        try {
-            return $this->attributes[$field];
-        } catch (ErrorException) {
-            return null;
-        }
-
-    }
-
-    /**
-     * Set the raw attribute value.
-     *
-     * @param string $field
-     * @param mixed $value
-     * @return void
-     */
-    public function setRawAttribute(string $field, mixed $value): void
-    {
-        $this->attributes[$field] = $value;
+        return array_merge($this->attributesToArray(), $this->relationsToArray());
     }
 
     /**
      * @inheritDoc
      */
-    public function getAttribute(string $field): mixed
+    public function offsetExists(mixed $offset): bool
     {
-        if(method_exists($this, $field)) {
-            $callable = $this->$field()->get;
-            return $callable($this->getRawAttribute($field));
-        }
-        return $this->getRawAttribute($field);
+        return ! is_null($this->getAttribute($offset));
     }
 
     /**
      * @inheritDoc
      */
-    public function setAttribute(string $field, mixed $value): void
+    public function offsetGet(mixed $offset): mixed
     {
-        if(method_exists($this, $field)) {
-            $callable = $this->$field()->set;
-            $this->setRawAttribute($field, $callable($value));
-        } else {
-            $this->setRawAttribute($field, $value);
-        }
+        return $this->getAttribute($offset);
     }
 
     /**
      * @inheritDoc
      */
-    public function save(): void
+    public function offsetSet(mixed $offset, mixed $value): void
     {
-        $storedData = $this->modelData()->where('id', $this->getAttribute('id'))->first();
-        foreach($this->attributes as $key => $value) {
-            $storedData->put($key, $value);
-        }
-        $this->repository()->save();
-    }
-
-    /**
-     * Alias to get an attribute.
-     *
-     * @param string $name
-     * @return mixed
-     */
-    public function __get(string $name): mixed
-    {
-        return $this->getAttribute($name);
+        $this->setAttribute($offset, $value);
     }
 
     /**
      * @inheritDoc
      */
-    public function repository(): JsonFileRepositoryContract
+    public function offsetUnset(mixed $offset): void
     {
-        $this->repository ??= JsonFileRepository::instance();
-        return $this->repository;
+        unset($this->attributes[$offset], $this->relations[$offset]);
     }
 
     /**
      * @inheritDoc
      */
-    public function storedData(): Collection
+    public function escapeWhenCastingToString($escape = true): static
     {
-        return $this->repository()->settings()->collection();
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function modelData(): Collection
-    {
-        $data = $this->storedData()->get($this->modelKey);
-
-        if($this->doubleNested) {
-            $data = $data->get($this->modelKey);
-        }
-
-        return $data;
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function findById(string $id): static
-    {
-        $this->fill($this->modelData()->where('id', $id)->first()->toArray());
+        $this->escapeWhenCastingToString = $escape;
         return $this;
     }
 
     /**
-     * Get the attributes.
-     *
-     * @return array
+     * @inheritDoc
      */
-    public function attributes(): array
+    public function toJson($options = 0): string
     {
-        return $this->attributes;
+        $json = json_encode($this->jsonSerialize(), $options);
+
+        if (json_last_error() !== JSON_ERROR_NONE) {
+            throw JsonEncodingException::forModel($this, json_last_error_msg());
+        }
+
+        return $json;
     }
 
     /**
      * @inheritDoc
      */
-    public static function instance(): static
+    public function jsonSerialize(): array
     {
-        return new static;
+        return $this->toArray();
     }
 
     /**
@@ -230,24 +148,126 @@ abstract class JsonModel implements JsonModelContract
      */
     public static function all(): Collection
     {
-        return static::instance()->modelData();
+        return static::query();
     }
 
     /**
      * @inheritDoc
      */
-    public static function where(string $key, mixed $operator, mixed $value = null): Collection
+    public static function query(): Collection
     {
-        return static::instance()->modelData()->where($key, $operator, $value);
+        return (new static)->newQuery();
     }
 
     /**
      * @inheritDoc
      */
-    public static function find(string $id): static
+    public function newQuery(): Collection
     {
-        return static::instance()->findById($id);
+        $modelCollection = $this->repository()->get($this->getModelKey());
+        $models = new Collection();
+
+        if($this->doubleNested) {
+            $modelCollection = $modelCollection->get($this->getModelKey());
+        }
+
+        foreach($modelCollection as $modelData) {
+            $models->push(new static($modelData));
+        }
+
+        return $models;
+    }
+
+    public function repository(): FileRepository
+    {
+        return new FileRepository();
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function getModelKey(): string
+    {
+        return $this->modelKey ?? $this->guessModelKey();
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function guessModelKey(): string
+    {
+        return Str::plural(Str::camel(class_basename($this)));
     }
 
 
+    /**
+     * Forward __get calls to collection object if property doesn't exist.
+     *
+     * @param string $name
+     * @return mixed
+     */
+    public function __get(string $name): mixed
+    {
+        if(property_exists($this, $name)) {
+            return $this->$name;
+        }
+
+        return $this->newQuery()->$name;
+    }
+
+    /**
+     * Forward calls to the FileRepository.
+     *
+     * @param string $name
+     * @param array $arguments
+     * @return mixed
+     */
+    public function __call(string $name, array $arguments)
+    {
+        return $this->forwardCallTo($this->newQuery(), $name, $arguments);
+    }
+
+    /**
+     * Forward calls to the FileRepository.
+     *
+     * @param string $name
+     * @param array $arguments
+     * @return mixed
+     */
+    public static function __callStatic(string $name, array $arguments): mixed
+    {
+        return (new static)->$name($arguments);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function getRouteKey(): mixed
+    {
+        return $this->getAttribute($this->getRouteKeyName());
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function getRouteKeyName(): string
+    {
+        return $this->primaryKey ?? 'id';
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function resolveRouteBinding($value, $field = null)
+    {
+        return $this->newQuery()->where($field ?? $this->getRouteKeyName(), $value)->first();
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function resolveChildRouteBinding($childType, $value, $field)
+    {
+        // TODO: Implement resolveChildRouteBinding() method.
+    }
 }

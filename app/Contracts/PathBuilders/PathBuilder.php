@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Contracts;
+namespace App\Contracts\PathBuilders;
 
-interface PathBuilderContract
+interface PathBuilder
 {
     /**
      * The base path to the settings.
@@ -72,5 +72,5 @@ interface PathBuilderContract
      *
      * @return static
      */
-    public static function instance(): PathBuilderContract;
+    public static function instance(): PathBuilder;
 }
