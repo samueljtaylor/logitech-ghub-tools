@@ -6,6 +6,7 @@ use App\Contracts\Repositories\FileRepository as FileRepositoryContract;
 use App\Collections\SettingsCollection;
 use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Traits\ForwardsCalls;
 
 
@@ -103,6 +104,8 @@ class FileRepository implements FileRepositoryContract
     public function reload(): void
     {
         unlink($this->file());
+        unset($this->collection);
+        unset($this->lastUpdated);
         $this->initialize();
     }
 
@@ -131,6 +134,16 @@ class FileRepository implements FileRepositoryContract
         $this->collection ??= $this->loadFromDatabase();
         return $this->collection;
     }
+
+    /**
+     * @inheritDoc
+     */
+    public function setCollection(Collection $collection): static
+    {
+        $this->collection = SettingsCollection::newFromCollection($collection);
+        return $this;
+    }
+
 
     /**
      * @inheritDoc

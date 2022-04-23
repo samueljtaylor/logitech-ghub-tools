@@ -17,19 +17,29 @@ const card = toRef(usePage().props.value, 'card');
 
 const original = usePage().props.value.card;
 
-const hasChanged = computed(() => card.value !== original);
+const hasChanged = computed(() => card.value !== original && !status.value.saved);
 
-const saving = ref(false);
+const status = ref({
+    saving: false,
+    saved: false,
+});
 
 function jsonChange(updatedJson) {
     card.value = updatedJson;
+    status.value.saved = false;
 }
 
 function save() {
-    saving.value = true;
-
+    status.value.saving = true;
+    axios.put(route('api.card.update', card.value), card.value).then(response => {
+        status.value.saving = false;
+        status.value.saved = true;
+    });
 }
 
+function reset() {
+    card.value = original;
+}
 </script>
 
 <template>
@@ -47,8 +57,12 @@ function save() {
                         <vue3-json-editor v-model="card" v-bind="editorOptions" @json-change="jsonChange"></vue3-json-editor>
                         <template #footer>
                             <div class="justify-items-center p-6">
-                                <tw-button :disabled="!hasChanged">
-                                    Update
+                                <tw-button :disabled="!hasChanged || status.saving" @click="save" class="mx-3">
+                                    {{ status.saving ? 'Saving...' : 'Save' + (status.saved ? 'd' : '') }}
+                                </tw-button>
+
+                                <tw-button :disabled="!hasChanged || status.saving" @click="reset" color="red" class="mx-3">
+                                    Reset
                                 </tw-button>
                             </div>
                         </template>

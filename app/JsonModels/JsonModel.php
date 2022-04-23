@@ -18,9 +18,11 @@ use Illuminate\Database\Eloquent\Concerns\HasTimestamps;
 use Illuminate\Database\Eloquent\Concerns\HidesAttributes;
 use Illuminate\Database\Eloquent\JsonEncodingException;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Enumerable;
 use Illuminate\Support\Str;
 use Illuminate\Support\Traits\ForwardsCalls;
 use JsonSerializable;
+use phpDocumentor\Reflection\Types\Iterable_;
 
 abstract class JsonModel implements JsonModelContract, Arrayable, ArrayAccess, CanBeEscapedWhenCastToString, Jsonable, JsonSerializable, UrlRoutable
 {
@@ -53,13 +55,10 @@ abstract class JsonModel implements JsonModelContract, Arrayable, ArrayAccess, C
      */
     protected string $primaryKey;
 
-    public function __construct($attributes = [])
+    public function __construct(iterable $attributes = [])
     {
         $this->timestamps = false;
-
-        foreach($attributes as $key => $value) {
-            $this->setAttribute($key, $value);
-        }
+        $this->fill($attributes);
     }
 
     /**
@@ -164,20 +163,30 @@ abstract class JsonModel implements JsonModelContract, Arrayable, ArrayAccess, C
      */
     public function newQuery(): Collection
     {
-        $modelCollection = $this->repository()->get($this->getModelKey());
         $models = new Collection();
 
-        if($this->doubleNested) {
-            $modelCollection = $modelCollection->get($this->getModelKey());
-        }
-
-        foreach($modelCollection as $modelData) {
-            $models->push(new static($modelData));
+        foreach($this->extractModelData($this->repository()->collection()) as $model) {
+            $models->push(new static($model));
         }
 
         return $models;
     }
 
+    /**
+     * Get the model specific data from the entire collection.
+     *
+     * @param Collection $collection
+     * @return Collection
+     */
+    protected function extractModelData(Collection $collection): Collection
+    {
+        $key = $this->getModelKey();
+        return $this->doubleNested ? $collection->$key->$key : $collection->$key;
+    }
+
+    /**
+     * @inheritDoc
+     */
     public function repository(): FileRepository
     {
         return new FileRepository();
@@ -269,5 +278,54 @@ abstract class JsonModel implements JsonModelContract, Arrayable, ArrayAccess, C
     public function resolveChildRouteBinding($childType, $value, $field)
     {
         // TODO: Implement resolveChildRouteBinding() method.
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function update(array $attributes): void
+    {
+        $this->fill($attributes);
+        $this->save();
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function save(): void
+    {
+        // In order to save the data to the JSON file we need to make a copy of the collection
+        // and use that collection to update only the specific model attributes we want to change,
+        // then return the entire collection to the FileRepository and save it.
+        // We can then use that file to compare to the actual database and then write all the
+        // changes to the actual database at once rather than in multiple steps.
+        $newCollection = $this->repository()->collection();
+        $model = $this->extractModelData($newCollection)->where('id', $this->getAttribute('id'))->first();
+
+        foreach($this->attributes as $key => $value) {
+            $model->put($key, $value);
+        }
+
+        $this->repository()->setCollection($newCollection)->save();
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public static function create(array $attributes): static
+    {
+        $card = new static($attributes);
+        $card->save();
+        return $card;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function fill(iterable $attributes = []): void
+    {
+        foreach($attributes as $key => $value) {
+            $this->setAttribute($key, $value);
+        }
     }
 }

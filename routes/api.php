@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\CardController;
 use App\Http\Controllers\Api\RepositoryController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -21,3 +22,5 @@ Route::prefix('repository')->as('repository.')->group(function () {
     Route::get('settings', [RepositoryController::class, 'settings'])->name('settings');
     Route::get('reload', [RepositoryController::class, 'reload'])->name('reload');
 });
+
+Route::apiResource('card', CardController::class);

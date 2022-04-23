@@ -85,6 +85,14 @@ interface FileRepository
     public function collection(): Collection;
 
     /**
+     * Set the collection.
+     *
+     * @param Collection $collection
+     * @return $this
+     */
+    public function setCollection(Collection $collection): static;
+
+    /**
      * Get all the data.
      *
      * @return Collection

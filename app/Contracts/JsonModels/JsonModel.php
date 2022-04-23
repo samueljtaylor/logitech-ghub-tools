@@ -48,4 +48,35 @@ interface JsonModel
      * @return string
      */
     public function guessModelKey(): string;
+
+    /**
+     * Update the model.
+     *
+     * @param array $attributes
+     * @return void
+     */
+    public function update(array $attributes): void;
+
+    /**
+     * Save the model data.
+     *
+     * @return void
+     */
+    public function save(): void;
+
+    /**
+     * Create a new model.
+     *
+     * @param array $attributes
+     * @return static
+     */
+    public static function create(array $attributes): static;
+
+    /**
+     * Fill attributes.
+     *
+     * @param iterable $attributes
+     * @return void
+     */
+    public function fill(iterable $attributes = []): void;
 }
