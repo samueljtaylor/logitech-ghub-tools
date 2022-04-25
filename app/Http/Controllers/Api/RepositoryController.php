@@ -2,20 +2,19 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Repositories\FileRepository;
 use App\Http\Controllers\Controller;
+use App\Repositories\FileRepository;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Spatie\RouteAttributes\Attributes\Get;
-use Spatie\RouteAttributes\Attributes\Middleware;
 use Spatie\RouteAttributes\Attributes\Prefix;
 
 #[Prefix('api')]
-#[Middleware('api')]
 class RepositoryController extends Controller
 {
-    public function __construct(protected FileRepository $repository)
-    { }
+    public function __construct(
+        protected FileRepository $repository
+    ) {}
 
     #[Get('lastUpdated')]
     public function lastUpdated(Request $request): JsonResponse
