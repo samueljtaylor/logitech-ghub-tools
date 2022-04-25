@@ -1,26 +1,44 @@
 <script setup>
 import AppLayout from "@/Layouts/AppLayout";
-import CardItem from "@/Pages/Models/Card/Partials/CardItem";
+import CardList from "@/Pages/Models/Card/Partials/CardList";
+import Panel from "@/Components/Panel";
+import BtnGreen from "@/Components/Controls/Buttons/BtnGreen";
+import {ref} from 'vue';
+import BtnBlue from "@/Components/Controls/Buttons/BtnBlue";
 
 const props = defineProps({
-    cards: Array,
+    grouped: Object,
 });
+
+const showEmpty = ref(false);
 </script>
 
 <template>
     <app-layout title="Cards">
-        <template #header>
-            <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-                Cards
-            </h2>
-        </template>
-
-        <div class="py-12">
-            <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-                <div class="flex flex-col">
-                    <card-item v-for="card in cards" :card="card"/>
+        <template #header="header">
+            <div class="flex flex-row">
+                <h2 :class="header.classes">
+                    Cards
+                </h2>
+                <div class="ml-auto">
+                    <btn-blue @click="showEmpty = !showEmpty">
+                        {{ showEmpty ? 'Hide' : 'Show' }} Empty
+                    </btn-blue>
                 </div>
             </div>
-        </div>
+        </template>
+
+        <panel v-for="(cards, grouping) in grouped" class="my-4" v-show="grouping.length || showEmpty">
+            <template #header>
+                <div class="flex flex-row">
+                    <div class="text-xl my-auto">{{ grouping.length ? grouping : '(empty)' }}</div>
+                    <div class="ml-auto">
+                        <btn-green>Add New</btn-green>
+                    </div>
+                </div>
+            </template>
+
+            <card-list :cards="cards"/>
+        </panel>
     </app-layout>
 </template>

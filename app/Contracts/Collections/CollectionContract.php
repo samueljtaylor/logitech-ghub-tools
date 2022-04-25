@@ -4,7 +4,7 @@ namespace App\Contracts\Collections;
 
 use Illuminate\Support\Collection;
 
-interface SettingsCollection
+interface CollectionContract
 {
     /**
      * New instance from JSON.

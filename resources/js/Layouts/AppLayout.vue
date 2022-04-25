@@ -11,7 +11,10 @@ import JetResponsiveNavLink from '@/Jetstream/ResponsiveNavLink.vue';
 
 defineProps({
     title: String,
+    noHeader: {type: Boolean, default: false},
 });
+
+const headerClasses = 'font-semibold text-xl text-gray-800 leading-tight';
 
 const showingNavigationDropdown = ref(false);
 
@@ -115,15 +118,23 @@ const logout = () => {
             </nav>
 
             <!-- Page Heading -->
-            <header v-if="$slots.header" class="bg-white shadow">
+            <header v-if="!noHeader" class="bg-white shadow">
                 <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
-                    <slot name="header" />
+                    <slot name="header" :classes="headerClasses"/>
+                    <h2 :class="headerClasses" v-if="!$slots.header">
+                        {{ title }}
+                    </h2>
                 </div>
             </header>
 
             <!-- Page Content -->
             <main>
-                <slot />
+                <slot name="raw" />
+                <div class="py-12" v-if="!$slots.raw">
+                    <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 flex flex-col">
+                        <slot/>
+                    </div>
+                </div>
             </main>
         </div>
     </div>

@@ -4,8 +4,9 @@ import Panel from "@/Components/Panel";
 import {computed, reactive, ref, toRef} from 'vue';
 import {usePage} from '@inertiajs/inertia-vue3'
 import {Vue3JsonEditor} from 'vue3-json-editor'
-import TwButton from "@/Components/Controls/TwButton";
 import axios from 'axios';
+import BtnBlue from "@/Components/Controls/Buttons/BtnBlue";
+import BtnRed from "@/Components/Controls/Buttons/BtnRed";
 
 const editorOptions = {
     expandedOnStart: true,
@@ -17,58 +18,54 @@ const card = toRef(usePage().props.value, 'card');
 
 const original = usePage().props.value.card;
 
-const hasChanged = computed(() => card.value !== original && !status.value.saved);
-
 const status = ref({
     saving: false,
     saved: false,
+    changed: false,
 });
 
 function jsonChange(updatedJson) {
     card.value = updatedJson;
-    status.value.saved = false;
+    resetStatus();
+    status.value.changed = true;
 }
 
 function save() {
     status.value.saving = true;
     axios.put(route('api.card.update', card.value), card.value).then(response => {
-        status.value.saving = false;
+        resetStatus();
         status.value.saved = true;
     });
 }
 
+function resetStatus() {
+    status.value = {
+        saving: false,
+        saved: false,
+        changed: false,
+    };
+}
+
 function reset() {
     card.value = original;
+    resetStatus();
 }
 </script>
 
 <template>
     <app-layout title="Card Details">
-        <template #header>
-            <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-                Card Details
-            </h2>
-        </template>
-
-        <div class="py-12">
-            <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-                <div class="flex flex-col">
-                    <panel class="flex flex-col" padding="0">
-                        <vue3-json-editor v-model="card" v-bind="editorOptions" @json-change="jsonChange"></vue3-json-editor>
-                        <template #footer>
-                            <div class="justify-items-center p-6">
-                                <tw-button :disabled="!hasChanged || status.saving" @click="save" class="mx-3">
-                                    {{ status.saving ? 'Saving...' : 'Save' + (status.saved ? 'd' : '') }}
-                                </tw-button>
-
-                                <tw-button :disabled="!hasChanged || status.saving" @click="reset" color="red" class="mx-3">
-                                    Reset
-                                </tw-button>
-                            </div>
-                        </template>
-                    </panel>
+        <panel padding="0">
+            <vue3-json-editor v-model="card" v-bind="editorOptions" @json-change="jsonChange"/>
+            <template #footer>
+                <div class="flex flex-row">
+                    <btn-blue class="w-1/2 text-center py-4" :disabled="!status.changed || status.saving" @click="save">
+                        {{ status.saving ? 'Saving...' : (status.saved ? 'Saved' : 'Save') }}
+                    </btn-blue>
+                    <btn-red class="w-1/2 text-center py-4" :disabled="!status.changed || status.saving" @click="reset">
+                        Reset
+                    </btn-red>
                 </div>
-            </div>
-        </div>
+            </template>
+        </panel>
     </app-layout>
 </template>

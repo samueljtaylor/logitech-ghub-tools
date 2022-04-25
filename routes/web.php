@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\CardController;
+use App\Http\Controllers\ApplicationController;
 use App\Http\Controllers\DashboardController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
@@ -23,3 +24,4 @@ Route::get('/', function () {
 
 Route::get('dashboard', [DashboardController::class, 'show'])->name('dashboard');
 Route::resource('card', CardController::class);
+Route::resource('application', ApplicationController::class);

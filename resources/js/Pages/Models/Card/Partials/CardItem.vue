@@ -1,24 +1,23 @@
 <script setup>
-import {ref} from "vue";
+import BtnBlue from "@/Components/Controls/Buttons/BtnBlue";
 
 const props = defineProps({
     card: Object
 })
 
-const open = ref(false);
 </script>
 
 <template>
-    <div class="my-3 bg-white w-full flex flex-col">
-        <div class="p-6 cursor-pointer" @click="open = !open">
-            {{ open ? '-' : '+' }} {{ card.name }}
-        </div>
-        <div v-if="open" class="flex flex-col">
-            <div class="p-6">
-                <pre>{{ card }}</pre>
+    <div class="my-3">
+        <div class="flex flex-row cursor-pointer" @click="open = !open">
+            <div class="w-1/3">
+                {{ card.name }}
             </div>
-            <a class="p-3 text-white text-center bg-blue-500 hover:bg-blue-400" :href="route('card.show', card)">
-                Edit
+            <div class="w-1/3 text-center text-sm text-gray-400">
+                {{ card?.macro?.actionName }}
+            </div>
+            <a class="ml-auto" :href="route('card.show', card)">
+                <btn-blue>Details</btn-blue>
             </a>
         </div>
     </div>

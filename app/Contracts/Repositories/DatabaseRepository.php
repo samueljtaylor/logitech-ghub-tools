@@ -2,7 +2,7 @@
 
 namespace App\Contracts\Repositories;
 
-use App\Contracts\Collections\SettingsCollection;
+use App\Contracts\Collections\CollectionContract;
 use App\Contracts\Connectors\AppDatabase;
 use Illuminate\Support\Collection;
 
@@ -11,9 +11,9 @@ interface DatabaseRepository
     /**
      * Get the settings from the database.
      *
-     * @return SettingsCollection
+     * @return Collection
      */
-    public function get(): SettingsCollection;
+    public function get(): Collection;
 
     /**
      * Update the database.
