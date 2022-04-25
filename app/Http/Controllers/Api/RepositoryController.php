@@ -6,17 +6,18 @@ use App\Repositories\FileRepository;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Spatie\RouteAttributes\Attributes\Get;
+use Spatie\RouteAttributes\Attributes\Middleware;
+use Spatie\RouteAttributes\Attributes\Prefix;
 
-
+#[Prefix('api')]
+#[Middleware('api')]
 class RepositoryController extends Controller
 {
-    protected FileRepository $repository;
+    public function __construct(protected FileRepository $repository)
+    { }
 
-    public function __construct(FileRepository $repository)
-    {
-        $this->repository = $repository;
-    }
-
+    #[Get('lastUpdated')]
     public function lastUpdated(Request $request): JsonResponse
     {
         $carbon = $this->repository->lastUpdated();
@@ -36,16 +37,19 @@ class RepositoryController extends Controller
         return new JsonResponse($carbon);
     }
 
+    #[Get('hasChanged')]
     public function hasChanged(): JsonResponse
     {
         return new JsonResponse($this->repository->hasChanged());
     }
 
+    #[Get('settings')]
     public function settings(): JsonResponse
     {
         return new JsonResponse($this->repository->settings()->collection());
     }
 
+    #[Get('reload')]
     public function reload(): JsonResponse
     {
         $this->repository->reload();

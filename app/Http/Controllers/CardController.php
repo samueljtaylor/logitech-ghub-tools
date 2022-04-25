@@ -6,7 +6,9 @@ use App\JsonModels\Card;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
+use Spatie\RouteAttributes\Attributes\Resource;
 
+#[Resource('card')]
 class CardController extends Controller
 {
     public function index(Request $request): Response

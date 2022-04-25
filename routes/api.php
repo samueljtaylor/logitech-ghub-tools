@@ -1,10 +1,5 @@
 <?php
 
-use App\Http\Controllers\Api\CardController;
-use App\Http\Controllers\Api\RepositoryController;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Route;
-
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -16,11 +11,3 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::prefix('repository')->as('repository.')->group(function () {
-    Route::get('hasChanged', [RepositoryController::class, 'hasChanged'])->name('hasChanged');
-    Route::get('lastUpdated', [RepositoryController::class, 'lastUpdated'])->name('lastUpdated');
-    Route::get('settings', [RepositoryController::class, 'settings'])->name('settings');
-    Route::get('reload', [RepositoryController::class, 'reload'])->name('reload');
-});
-
-Route::apiResource('card', CardController::class);
