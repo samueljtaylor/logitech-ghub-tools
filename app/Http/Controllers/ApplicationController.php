@@ -3,16 +3,15 @@
 namespace App\Http\Controllers;
 
 use App\JsonModels\Application;
-use Inertia\Inertia;
 use Inertia\Response;
 use Spatie\RouteAttributes\Attributes\Resource;
 
 #[Resource('application')]
-class ApplicationController extends Controller
+class ApplicationController extends InertiaController
 {
     public function index(): Response
     {
-        return Inertia::render('Models/Application/ApplicationIndex', [
+        return $this->render([
             'applications' => Application::all(),
         ]);
     }

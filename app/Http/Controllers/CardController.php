@@ -2,26 +2,26 @@
 
 namespace App\Http\Controllers;
 
+use App\Attributes\JsonModel;
 use App\JsonModels\Card;
 use Illuminate\Http\Request;
-use Inertia\Inertia;
 use Inertia\Response;
 use Spatie\RouteAttributes\Attributes\Resource;
 
 #[Resource('card')]
-class CardController extends Controller
+#[JsonModel(Card::class)]
+class CardController extends InertiaController
 {
     public function index(Request $request): Response
     {
-        return Inertia::render('Models/Card/CardIndex', [
+        return $this->render([
             'grouped' => Card::query()->groupBy($request->get('groupBy') ?? 'category'),
         ]);
     }
 
     public function show(Card $card): Response
     {
-        return Inertia::render('Models/Card/CardShow', [
-            'card' => $card,
-        ]);
+        return $this->render(compact('card'));
     }
+
 }

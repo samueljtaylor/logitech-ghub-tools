@@ -2,15 +2,14 @@
 
 namespace App\Http\Controllers;
 
-use Inertia\Inertia;
 use Inertia\Response;
 use Spatie\RouteAttributes\Attributes\Get;
 
-class DashboardController extends Controller
+class DashboardController extends InertiaController
 {
     #[Get('dashboard', name: 'dashboard')]
     public function show(): Response
     {
-        return Inertia::render('Dashboard');
+        return $this->render(component: 'Dashboard');
     }
 }

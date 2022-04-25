@@ -29,6 +29,6 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        //
+        include_once app_path('Helpers/get_calling_method_name.php');
     }
 }
