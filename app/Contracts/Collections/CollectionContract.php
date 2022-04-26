@@ -29,4 +29,13 @@ interface CollectionContract
      * @return static
      */
     public static function newFromCollection(Collection $collection): static;
+
+    /**
+     * Find an object.
+     *
+     * @param mixed $value
+     * @param string $field
+     * @return mixed
+     */
+    public function find(mixed $value, string $field = 'id'): mixed;
 }

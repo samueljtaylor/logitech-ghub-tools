@@ -8,7 +8,6 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Spatie\RouteAttributes\Attributes\Group;
 use Spatie\RouteAttributes\Attributes\Put;
-use Spatie\RouteAttributes\Attributes\Resource;
 
 #[Group(prefix: 'api', as: 'api.')]
 #[JsonModel(Card::class)]

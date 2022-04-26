@@ -41,4 +41,12 @@ class Collection extends LaravelCollection implements CollectionContract
     {
         return $this->$key ?? $this->get($key);
     }
+
+    /**
+     * @inheritDoc
+     */
+    public function find(mixed $value, string $field = 'id'): mixed
+    {
+        return $this->where($field, $value)->first();
+    }
 }

@@ -17,12 +17,10 @@ use Illuminate\Database\Eloquent\Concerns\HasRelationships;
 use Illuminate\Database\Eloquent\Concerns\HasTimestamps;
 use Illuminate\Database\Eloquent\Concerns\HidesAttributes;
 use Illuminate\Database\Eloquent\JsonEncodingException;
-use Illuminate\Support\Collection;
-use Illuminate\Support\Enumerable;
+use App\Collections\Collection;
 use Illuminate\Support\Str;
 use Illuminate\Support\Traits\ForwardsCalls;
 use JsonSerializable;
-use phpDocumentor\Reflection\Types\Iterable_;
 
 abstract class JsonModel implements JsonModelContract, Arrayable, ArrayAccess, CanBeEscapedWhenCastToString, Jsonable, JsonSerializable, UrlRoutable
 {
@@ -217,11 +215,7 @@ abstract class JsonModel implements JsonModelContract, Arrayable, ArrayAccess, C
      */
     public function __get(string $name): mixed
     {
-        if(property_exists($this, $name)) {
-            return $this->$name;
-        }
-
-        return $this->newQuery()->$name;
+        return $this->$name ?? $this->getAttribute($name) ?? $this->newQuery()->$name;
     }
 
     /**
@@ -245,7 +239,7 @@ abstract class JsonModel implements JsonModelContract, Arrayable, ArrayAccess, C
      */
     public static function __callStatic(string $name, array $arguments): mixed
     {
-        return (new static)->$name($arguments);
+        return (new static)->$name(...$arguments);
     }
 
     /**
@@ -261,15 +255,15 @@ abstract class JsonModel implements JsonModelContract, Arrayable, ArrayAccess, C
      */
     public function getRouteKeyName(): string
     {
-        return $this->primaryKey ?? 'id';
+        return $this->getPrimaryKey();
     }
 
     /**
      * @inheritDoc
      */
-    public function resolveRouteBinding($value, $field = null)
+    public function resolveRouteBinding($value, $field = null): static
     {
-        return $this->newQuery()->where($field ?? $this->getRouteKeyName(), $value)->first();
+        return $this->newQuery()->find($value, $field ?? $this->getRouteKeyName());
     }
 
     /**
@@ -278,6 +272,16 @@ abstract class JsonModel implements JsonModelContract, Arrayable, ArrayAccess, C
     public function resolveChildRouteBinding($childType, $value, $field)
     {
         // TODO: Implement resolveChildRouteBinding() method.
+    }
+
+    /**
+     * Get the primary key field name.
+     *
+     * @return string
+     */
+    public function getPrimaryKey(): string
+    {
+        return $this->primaryKey ?? 'id';
     }
 
     /**
