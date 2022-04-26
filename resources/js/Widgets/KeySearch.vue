@@ -3,10 +3,11 @@ import Panel from "@/Components/Panel";
 import {ref} from "vue";
 import axios from "axios";
 import BtnGreen from "@/Components/Controls/Buttons/BtnGreen";
+import {isEmpty} from 'lodash';
 
 const query = ref('');
 const searching = ref(false);
-const results = ref({});
+const results = ref([]);
 
 function search() {
     searching.value = true;
@@ -14,6 +15,9 @@ function search() {
         query: query.value
     }).then(response => {
         results.value = response.data;
+        searching.value = false;
+    }).catch(() => {
+        results.value = [];
         searching.value = false;
     });
 }
@@ -28,8 +32,8 @@ function search() {
             </btn-green>
         </div>
 
-        <div>
-            <pre>{{ results }}</pre>
+        <div class="my-6">
+            <pre>{{ isEmpty(results) ? 'No results.' : results }}</pre>
         </div>
     </panel>
 </template>

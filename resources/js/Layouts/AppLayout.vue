@@ -8,6 +8,8 @@ import JetDropdown from '@/Jetstream/Dropdown.vue';
 import JetDropdownLink from '@/Jetstream/DropdownLink.vue';
 import JetNavLink from '@/Jetstream/NavLink.vue';
 import JetResponsiveNavLink from '@/Jetstream/ResponsiveNavLink.vue';
+import KeySearch from "@/Widgets/KeySearch";
+import Modal from '@/Jetstream/Modal'
 
 defineProps({
     title: String,
@@ -17,6 +19,8 @@ defineProps({
 const headerClasses = 'font-semibold text-xl text-gray-800 leading-tight';
 
 const showingNavigationDropdown = ref(false);
+
+const openKeySearch = ref(false);
 
 const switchToTeam = (team) => {
     Inertia.put(route('current-team.update'), {
@@ -59,6 +63,14 @@ const logout = () => {
                                 <JetNavLink :href="route('card.index')" :active="route().current('card.index')">
                                     Cards
                                 </JetNavLink>
+
+                                <a class="cursor-pointer inline-flex items-center px-1 pt-1 border-b-2 border-transparent text-sm font-medium leading-5 text-gray-500 hover:text-gray-700 hover:border-gray-300 focus:outline-none focus:text-gray-700 focus:border-gray-300 transition" @click="openKeySearch = true">
+                                    Open Key Search
+                                </a>
+
+                                <modal :show="openKeySearch" :closeable="true" @close="openKeySearch = false">
+                                    <key-search/>
+                                </modal>
                             </div>
                         </div>
 

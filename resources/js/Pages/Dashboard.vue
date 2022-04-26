@@ -7,7 +7,5 @@ import KeySearch from "@/Widgets/KeySearch";
 <template>
     <AppLayout title="Dashboard">
         <repository-details/>
-
-        <key-search class="mt-10"/>
     </AppLayout>
 </template>
