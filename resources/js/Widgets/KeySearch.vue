@@ -2,16 +2,21 @@
 import Panel from "@/Components/Panel";
 import {ref} from "vue";
 import axios from "axios";
-import BtnGreen from "@/Components/Controls/Buttons/BtnGreen";
+import BtnBlue from "@/Components/Controls/Buttons/BtnBlue";
 import {isEmpty} from 'lodash';
+import Checkbox from "@/Jetstream/Checkbox";
 
 const query = ref('');
 const searching = ref(false);
 const results = ref([]);
+const strict = ref(false);
 
 function search() {
+    let routeName = 'api.key.' + (strict.value ? 'find' : 'search');
+
     searching.value = true;
-    axios.post(route('api.key.search'), {
+
+    axios.post(route(routeName), {
         query: query.value
     }).then(response => {
         results.value = response.data;
@@ -27,9 +32,14 @@ function search() {
     <panel>
         <div class="flex flex-row pt-6">
             <input type="text" class="p-3 bg-white disabled:bg-gray-200 disabled:cursor-not-allowed flex-1" v-model="query" :disabled="searching">
-            <btn-green :disabled="searching" @click="search">
-                Search
-            </btn-green>
+            <btn-blue :disabled="searching || query.length === 0" @click="search">
+                {{ searching ? 'Searching...' : 'Search' }}
+            </btn-blue>
+        </div>
+
+        <div class="my-2">
+            <checkbox v-model="strict" id="strict-checkbox"/>
+            <label for="strict-checkbox" class="pl-2 my-auto">Strict Search</label>
         </div>
 
         <div class="my-6">

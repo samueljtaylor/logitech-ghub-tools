@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Collections\KeyCollection;
+use Illuminate\Support\Str;
 
 class KeyMapper
 {
@@ -33,16 +34,30 @@ class KeyMapper
     /**
      * Find a key.
      *
-     * Returns the first item from search function.
+     * Search first by key, then do a full search and return first result.
      *
      * @param string $term
      * @return KeyCollection
      */
     public function find(string $term): KeyCollection
     {
+        $result = $this->keymap()->get(Str::upper($term));
+
+        if($result) {
+            return KeyCollection::newFromArray([
+                Str::upper($term) => $result
+            ]);
+        }
+
         $search = $this->search($term);
-        $key = $search->keys()->first();
-        return KeyCollection::newFromArray([$key => $search->first()]);
+
+        if($search->count()) {
+            return KeyCollection::newFromArray([
+                $search->keys()->first() => $search->first()
+            ]);
+        }
+
+        return new KeyCollection();
     }
 
     /**
