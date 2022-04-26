@@ -40,7 +40,9 @@ class KeyMapper
      */
     public function find(string $term): KeyCollection
     {
-        return $this->search($term)->first();
+        $search = $this->search($term);
+        $key = $search->keys()->first();
+        return KeyCollection::newFromArray([$key => $search->first()]);
     }
 
     /**

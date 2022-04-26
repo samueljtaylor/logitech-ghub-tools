@@ -4,17 +4,26 @@ namespace App\Http\Controllers\Api;
 
 use App\Services\KeyMapper;
 use Illuminate\Http\JsonResponse;
-use Spatie\RouteAttributes\Attributes\Prefix;
+use Illuminate\Http\Request;
+use Spatie\RouteAttributes\Attributes\Group;
+use Spatie\RouteAttributes\Attributes\Post;
 
-#[Prefix('api')]
+#[Group(prefix: 'api/key', as: 'api.key.')]
 class SearchController extends ApiController
 {
     public function __construct(
        protected KeyMapper $keyMapper
     ) {}
 
-    public function search(string $term): JsonResponse
+    #[Post('search', name: 'search')]
+    public function search(Request $request): JsonResponse
     {
+        return $this->respond($this->keyMapper->search($request->get('query')));
+    }
 
+    #[Post('find', name: 'find')]
+    public function find(Request $request): JsonResponse
+    {
+        return $this->respond($this->keyMapper->find($request->get('query')));
     }
 }

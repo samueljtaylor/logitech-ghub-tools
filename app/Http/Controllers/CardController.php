@@ -13,7 +13,6 @@ use Spatie\RouteAttributes\Attributes\Resource;
 #[JsonModel(Card::class)]
 class CardController extends InertiaController
 {
-//    #[Get('card', name: 'card.index')]
     public function index(Request $request): Response
     {
         return $this->render([
