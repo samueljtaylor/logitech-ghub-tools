@@ -3,6 +3,7 @@
 namespace App\Enums;
 
 use App\Contracts\PathBuilders\PathBuilder;
+use App\PathBuilders\DockerPathBuilder;
 use App\PathBuilders\MacPathBuilder;
 use App\PathBuilders\OtherPathBuilder;
 use Exception;
@@ -13,6 +14,7 @@ enum Platform
     case MacOS;
     case Windows;
     case Linux;
+    case Docker;
     case Other;
 
     /**
@@ -26,6 +28,7 @@ enum Platform
         return match($this) {
             self::MacOS => MacPathBuilder::class,
             self::Windows, self::Linux => throw new Exception('To be implemented'),
+            self::Docker => DockerPathBuilder::class,
             self::Other => OtherPathBuilder::class
         };
     }
@@ -53,6 +56,7 @@ enum Platform
             'OS X' => Platform::MacOS,
             'Windows' => Platform::Windows,
             'Linux' => Platform::Linux,
+            'Docker' => Platform::Docker,
             default => Platform::Other
         };
     }
