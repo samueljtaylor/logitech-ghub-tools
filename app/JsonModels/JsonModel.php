@@ -2,6 +2,8 @@
 
 namespace App\JsonModels;
 
+use App\Collections\SettingsCollection;
+use App\Contracts\JsonModels\HasDefaultValues;
 use App\Contracts\JsonModels\JsonModel as JsonModelContract;
 use App\Repositories\FileRepository;
 use Illuminate\Contracts\Routing\UrlRoutable;
@@ -18,11 +20,19 @@ use Illuminate\Database\Eloquent\Concerns\HasTimestamps;
 use Illuminate\Database\Eloquent\Concerns\HidesAttributes;
 use Illuminate\Database\Eloquent\JsonEncodingException;
 use App\Collections\Collection;
+use Illuminate\Support\ItemNotFoundException;
 use Illuminate\Support\Str;
 use Illuminate\Support\Traits\ForwardsCalls;
 use JsonSerializable;
 
-abstract class JsonModel implements JsonModelContract, Arrayable, ArrayAccess, CanBeEscapedWhenCastToString, Jsonable, JsonSerializable, UrlRoutable
+abstract class JsonModel implements JsonModelContract,
+    Arrayable,
+    ArrayAccess,
+    CanBeEscapedWhenCastToString,
+    Jsonable,
+    JsonSerializable,
+    UrlRoutable,
+    HasDefaultValues
 {
     use HasAttributes;
     use HasEvents;
@@ -304,14 +314,51 @@ abstract class JsonModel implements JsonModelContract, Arrayable, ArrayAccess, C
         // We can then use that file to compare to the actual database and then write all the
         // changes to the actual database at once rather than in multiple steps.
         $newCollection = $this->repository()->collection();
-        $model = $this->extractModelData($newCollection)->where('id', $this->getAttribute('id'))->first();
+        $modelData = $this->extractModelData($newCollection);
 
-        foreach($this->attributes as $key => $value) {
-            $model->put($key, $value);
+        try {
+            // This will handle updates
+            $model = $modelData->where('id', $this->getAttribute('id'))->firstOrFail();
+
+            foreach($this->attributes as $key => $value) {
+                $model->put($key, $value);
+            }
+        } catch (ItemNotFoundException) {
+            // This will handle inserts
+            $modelData->push([...$this->attributes]);
         }
 
         $this->repository()->setCollection($newCollection)->save();
     }
+
+    /**
+     * @inheritDoc
+     */
+    public function delete(): void
+    {
+        // Because we're using a large collection, we're going to need to effectively rebuild the
+        // collection without the deleted model. This is similar to the save() method, but we need
+        // to use the reject method which will always return a new collection instance. First things
+        // first we're going to extract the model data and remove the model.
+        $modelData = $this->extractModelData($this->repository()->collection())->reject(function ($item) {
+            return $item->get('id') === $this->getAttribute('id');
+        });
+
+        if($this->doubleNested) {
+            $keyedData = SettingsCollection::newFromArray([$this->getModelKey() => $modelData]);
+        } else {
+            $keyedData = SettingsCollection::newFromCollection($modelData);
+        }
+
+        // Now we're going to go through the original collection and just remove this model's entire data
+        // and put the new data we created above in its place.
+        $newCollection = $this->repository()->collection()->reject(fn ($item, $key) => $key === $this->getModelKey());
+        $newCollection->put($this->getModelKey(), $keyedData);
+
+        // We'll send the new collection to the file repository and re-sort the keys.
+        $this->repository()->setCollection($newCollection->sortKeys())->save();
+    }
+
 
     /**
      * @inheritDoc
@@ -326,10 +373,37 @@ abstract class JsonModel implements JsonModelContract, Arrayable, ArrayAccess, C
     /**
      * @inheritDoc
      */
+    public static function createFromJson(string $json): static
+    {
+        return static::create(json_decode($json, true));
+    }
+
+
+    /**
+     * @inheritDoc
+     */
     public function fill(iterable $attributes = []): void
     {
         foreach($attributes as $key => $value) {
             $this->setAttribute($key, $value);
         }
     }
+
+    /**
+     * @inheritDoc
+     */
+    public static function newWithDefaults(array $attributes = []): static
+    {
+        return new static(array_merge(static::getDefaultValues(), $attributes));
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public static function getDefaultValues(): array
+    {
+        return [];
+    }
+
+
 }

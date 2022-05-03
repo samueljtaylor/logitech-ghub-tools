@@ -65,12 +65,27 @@ interface JsonModel
     public function save(): void;
 
     /**
+     * Delete this model.
+     *
+     * @return void
+     */
+    public function delete(): void;
+
+    /**
      * Create a new model.
      *
      * @param array $attributes
      * @return static
      */
     public static function create(array $attributes): static;
+
+    /**
+     * Create a new model from JSON.
+     *
+     * @param string $json
+     * @return static
+     */
+    public static function createFromJson(string $json): static;
 
     /**
      * Fill attributes.

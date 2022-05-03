@@ -1,7 +1,6 @@
 <script setup>
 import AppLayout from "@/Layouts/AppLayout";
 import CardList from "@/Pages/Models/Card/Partials/CardList";
-import Panel from "@/Components/Panel";
 import BtnGreen from "@/Components/Controls/Buttons/BtnGreen";
 import {ref} from 'vue';
 import BtnBlue from "@/Components/Controls/Buttons/BtnBlue";
@@ -37,7 +36,7 @@ const openAll = ref(false);
 
         <collapse-panel v-for="(cards, grouping) in grouped" class="my-4" v-show="grouping.length || showEmpty" :title="grouping.length ? grouping : '(empty)'" :open="openAll">
             <template #options>
-                <btn-green>Add New</btn-green>
+                <a :href="route('card.create', {category: grouping})"><btn-green>Add New</btn-green></a>
             </template>
             <card-list :cards="cards"/>
         </collapse-panel>

@@ -10,12 +10,12 @@ Very much a work in progress.
 - [x] Save to temp file
 - [x] Find a key code by key name
 - [ ] View all JSON 
-- [ ] `card`
+- [x] `card`
     - [x] View All
-    - [ ] Add New
+    - [x] Add New
     - [x] View Details
     - [x] Edit Details
-    - [ ] Delete 
+    - [x] Delete 
 - [ ] `application`
     - [ ] View All
     - [ ] Add New

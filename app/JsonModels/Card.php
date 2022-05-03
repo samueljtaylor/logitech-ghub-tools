@@ -3,6 +3,7 @@
 namespace App\JsonModels;
 
 use Illuminate\Database\Eloquent\Casts\Attribute;
+use Illuminate\Support\Str;
 
 class Card extends JsonModel
 {
@@ -16,5 +17,24 @@ class Card extends JsonModel
         );
     }
 
-
+    public static function getDefaultValues(): array
+    {
+        return [
+            'id' => Str::uuid()->toString(),
+            'name' => '',
+            'category' => '',
+            'macro' => [
+                'actionName' => '',
+                'keystroke' => [
+                    'code' => '',
+                    'modifiers' => [],
+                ],
+                'type' => 'keystroke',
+            ],
+            'applicationId' => Application::defaultId(),
+            'attribute' => 'MACRO_PLAYBACK',
+            'profileId' => Profile::defaultId(),
+            'readOnly' => true,
+        ];
+    }
 }

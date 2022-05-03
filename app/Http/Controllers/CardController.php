@@ -3,10 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Attributes\JsonModel;
+use App\Collections\SettingsCollection;
 use App\JsonModels\Card;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Response;
-use Spatie\RouteAttributes\Attributes\Get;
 use Spatie\RouteAttributes\Attributes\Resource;
 
 #[Resource('card')]
@@ -20,12 +21,30 @@ class CardController extends InertiaController
         ]);
     }
 
-    // We need to explicitly declare the GET route because the Resource attribute
-    // doesn't seem to work with resolving route model binds.
-    #[Get('card/{card}', name: 'card.show')]
     public function show(Card $card): Response
     {
         return $this->render(compact('card'));
     }
 
+    public function create(Request $request): Response
+    {
+        if($request->has('category')) {
+            $attributes = ['category' => $request->get('category')];
+        }
+
+        $card = Card::newWithDefaults($attributes ?? []);
+        return $this->render(compact('card'));
+    }
+
+    public function store(Request $request): RedirectResponse
+    {
+        $card = Card::createFromJson($request->get('card'));
+        return redirect()->route('card.show', $card)->with('message', 'Card created successfully!');
+    }
+
+    public function destroy(Card $card): RedirectResponse
+    {
+        $card->delete();
+        return redirect()->route('card.index')->with('message', 'Card deleted successfully!');
+    }
 }
