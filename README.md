@@ -57,7 +57,7 @@ Open Terminal and `cd` to where you cloned this repository.
 Run the install script:
 
 ```bash
-$ sh ./install-macos.sh
+$ sh ./scripts/macos/install.sh
 ```
 
 *Note: the install script will fail if you do not have the above requirements installed.*
@@ -71,7 +71,7 @@ After installation you can start the webapp! See [Starting Up](#starting-up)
 #### Requirements
 
 - [Docker](https://www.docker.com/get-started/)
-- Minimal knowledge of MacOS filesystem and terminal
+- Minimal knowledge of filesystem and terminal
 
 #### Instructions
 
