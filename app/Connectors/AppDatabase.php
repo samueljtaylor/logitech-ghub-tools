@@ -104,6 +104,7 @@ class AppDatabase implements AppDatabaseContract
      */
     public function update(string $json): bool
     {
+
         return $this->performUpdate($json);
     }
 

@@ -24,12 +24,12 @@ class Card extends JsonModel
             'name' => '',
             'category' => '',
             'macro' => [
+                'type' => 'keystroke',
                 'actionName' => '',
                 'keystroke' => [
                     'code' => '',
                     'modifiers' => [],
                 ],
-                'type' => 'keystroke',
             ],
             'applicationId' => Application::defaultId(),
             'attribute' => 'MACRO_PLAYBACK',

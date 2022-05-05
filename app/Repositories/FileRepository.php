@@ -129,6 +129,21 @@ class FileRepository implements FileRepositoryContract
     /**
      * @inheritDoc
      */
+    public function status(): Collection
+    {
+        return SettingsCollection::newFromArray([
+            'hasChanged'  => $this->hasChanged(),
+            'lastUpdated' => [
+                'carbon'        => $this->lastUpdated(),
+                'diffForHumans' => $this->lastUpdated()->diffForHumans(),
+                'timestamp'     => $this->lastUpdated()->timestamp,
+            ],
+        ]);
+    }
+
+    /**
+     * @inheritDoc
+     */
     public function collection(): SettingsCollection
     {
         $this->collection ??= $this->loadFromDatabase();

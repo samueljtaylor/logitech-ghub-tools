@@ -78,6 +78,13 @@ interface FileRepository
     public function lastUpdated(): Carbon;
 
     /**
+     * Get the status of the FileRepository.
+     *
+     * @return Collection
+     */
+    public function status(): Collection;
+
+    /**
      * Get the data.
      *
      * @return Collection

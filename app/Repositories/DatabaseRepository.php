@@ -5,6 +5,7 @@ namespace App\Repositories;
 use App\Connectors\AppDatabase;
 use App\Collections\SettingsCollection;
 use App\Contracts\Repositories\DatabaseRepository as DatabaseRepositoryContract;
+use App\Services\GHubValidator;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Collection;
 
@@ -36,7 +37,7 @@ class DatabaseRepository implements DatabaseRepositoryContract
      */
     public function update(Collection $collection): bool
     {
-        return $this->connector()->update($collection->toJson());
+        return $this->connector()->update(new GHubValidator($collection->toJson()));
     }
 
     /**

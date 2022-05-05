@@ -2,7 +2,10 @@
 
 An app to make it easier to deal with managing the G Hub key binds.
 
-Very much a work in progress.
+Work in progress.
+
+> Unfortunately it's looking like a new update will add the custom key binds but remove a necessary option to make 
+> it actually work. I'm going to continue trying to make it work but this may be DOA.
 
 ## Features
 
@@ -28,7 +31,7 @@ Very much a work in progress.
     - [ ] View Details
     - [ ] Edit Details
     - [ ] Delete
-- [ ] Write changes from temp file to database
+- [x] Write changes from temp file to database
 
 ## Platforms
 

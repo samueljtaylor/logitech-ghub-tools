@@ -7,6 +7,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Spatie\RouteAttributes\Attributes\Get;
 use Spatie\RouteAttributes\Attributes\Group;
+use Spatie\RouteAttributes\Attributes\Post;
 
 #[Group(prefix: 'api/repository', as: 'api.repository.')]
 class RepositoryController extends ApiController
@@ -15,42 +16,28 @@ class RepositoryController extends ApiController
         protected FileRepository $repository
     ) {}
 
-    #[Get('lastUpdated', name: 'lastUpdated')]
-    public function lastUpdated(Request $request): JsonResponse
+    #[Get('status', name: 'status')]
+    public function status(): JsonResponse
     {
-        $carbon = $this->repository->lastUpdated();
-
-        if($request->has('format')) {
-            if($request->get('format') === 'diffForHumans') {
-                return new JsonResponse($carbon->diffForHumans());
-            }
-
-            try {
-                return new JsonResponse($carbon->format($request->get('format')));
-            } catch (\Exception) {
-
-            }
-        }
-
-        return new JsonResponse($carbon);
-    }
-
-    #[Get('hasChanged', name: 'hasChanged')]
-    public function hasChanged(): JsonResponse
-    {
-        return new JsonResponse($this->repository->hasChanged());
+        return $this->respond($this->repository->status());
     }
 
     #[Get('settings', name: 'settings')]
     public function settings(): JsonResponse
     {
-        return new JsonResponse($this->repository->settings()->collection());
+        return $this->respond($this->repository->settings()->collection());
     }
 
-    #[Get('reload', name: 'reload')]
+    #[Post('reload', name: 'reload')]
     public function reload(): JsonResponse
     {
         $this->repository->reload();
-        return new JsonResponse('Reloaded');
+        return $this->respond('Reloaded');
+    }
+
+    #[Post('save', name: 'save')]
+    public function save(): JsonResponse
+    {
+        return $this->repository->write() ? $this->respond('Success') : $this->respond('Failed', 500);
     }
 }
